@@ -7,4 +7,10 @@
     "directory": "./dist",
     "not_found_handling": "404-page", // If you have a custom `src/pages/404.astro` page
   },
+  "routes": [
+    {
+      "pattern": "nyukeit.top",
+      "custom_domain": true,
+    },
+  ],
 }
