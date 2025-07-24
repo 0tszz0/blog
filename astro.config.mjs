@@ -1,6 +1,8 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
+import cloudflare from "@astrojs/cloudflare";
+
 // https://astro.build/config
 export default defineConfig({
   markdown: {
@@ -9,6 +11,7 @@ export default defineConfig({
       wrap: false,
     },
   },
+
   i18n: {
     defaultLocale: "fr",
     locales: ["fr", "en"],
@@ -16,6 +19,8 @@ export default defineConfig({
       prefixDefaultLocale: false,
     },
   },
+
   site: "https://nyukeit.dev",
   integrations: [sitemap()],
+  adapter: cloudflare(),
 });
