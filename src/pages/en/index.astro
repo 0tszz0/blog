@@ -1,0 +1,28 @@
+---
+import PageLayout from "../../layouts/page.layout.astro";
+import BlogList from "../../components/BlogList.astro";
+---
+
+<PageLayout>
+  <h2>Hello 👋</h2>
+  <p>
+    I'm Nyukeit. I'm an aspiring Cybersecurity professional with a background in coding and development, mostly in the realm of Javascript/Typescript and WordPress.
+  </p>
+  <p>
+    Online safety and security has been a great passion for me, with mega corporations knowing so much about us as individuals and track everything we do, learning how to stay safe online has become entwined with daily lives.
+  </p>
+  <p>
+    With the birth of my children, I have increased my interest and my learning about the world of cyber security in an effort to understand how they will use digital devices in the future and how best to keep them safe from unwanted harm and stress.
+  </p>
+  <p>
+    I love sharing with the world what I understand through my learnings, but I have been lazy and occupied to write long form articles for a long time, but I wish to change that. My goal is to make cyber security knowledge available to common people so they can start thinking on the lines of safety before sharing all their details and lives online.
+  </p>
+  <p>
+    When I am not thinking about security, I am often wondering which part of the world to see next and looking at the skies to amaze at the wonders of outer space.
+  </p>
+  <!-- recent blog posts -->
+  <div>
+    <h3>Recent Blog Posts</h3>
+    <BlogList enableYear={false} lang={"en"} />
+  </div>
+</PageLayout>

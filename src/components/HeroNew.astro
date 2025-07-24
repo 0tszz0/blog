@@ -1,0 +1,102 @@
+---
+const accentColor = "#FFFCE1";
+// const gradientColor = "linear-gradient(0deg, rgba(234, 204, 248, 1) 0%, rgba(102, 84, 241, 1) 100%) left no-repeat";
+const accentColor2 = "#6654F1"
+---
+
+<style define:vars={{ accentColor, accentColor2 }}>
+  #full {
+    -webkit-text-stroke: 1px var(--accentColor);
+    /* background: var(--accentColor); */
+    background: linear-gradient(var(--accentColor) 0 100%) bottom / 0 no-repeat;
+    color: transparent;
+    background-clip: text;
+    /* overflow: hidden; */
+    transform: rotateX(-180deg);
+  }
+
+  #developer, #fullstack {
+    overflow: hidden;
+  }
+
+</style>
+<script>
+  import gsap from "gsap";
+  import MotionPathPlugin from "gsap/MotionPathPlugin";
+  import Flip from "gsap/Flip";
+  import TextPlugin from "gsap/TextPlugin";
+  import ScrollTrigger from "gsap/ScrollTrigger";
+  gsap.registerPlugin(TextPlugin, ScrollTrigger, Flip, MotionPathPlugin);
+
+  let tl = gsap.timeline();
+
+  // tl.to(["#developer", "#fullstack"], {backgroundSize: "100%", ease: "bounce.inOut", duration: 5}, 4)
+  tl.fromTo("#d", {y: 190, duration: 1}, {y: 0, duration: 1, ease: "bounce.out"}, 0)
+    .fromTo("#e", 
+      {yPercent: -120, duration: 1},
+      {yPercent: 0, ease: "bounce.inOut", duration: 1}, 0.3)
+    .fromTo("#e2", 
+      {visibility: "hidden", duration: 0.3, ease: "none"}, 
+      {visibility: "visible", duration: 1, ease: "none"}, 3)
+    // .to("#1", {yPercent: -190, duration: 1}, 0.3)
+    .fromTo("#p", 
+      {yPercent: 190, duration: 1, ease: "none"}, 
+      {yPercent: 0, duration: 1}, 0.3)
+    .fromTo("#p2", 
+      {yPercent: -190, duration: 1, ease: "none"}, 
+      {yPercent: 0, duration: 1}, 0.3)
+    .to("#p2", 
+      {rotateY: 180, duration: 1, ease: "none"}, 1)
+    .to("#p2", 
+      {xPercent: 350, duration: 0.3, ease: "back.out"}, 2)
+    .to("#p2", {xPercent: 0, duration: 1, ease: "none"}, 3)
+    .to("#p2", {rotateY: 0, duration: 1, ease: "none"}, 3.5)
+    .fromTo("#asset3", 
+      {y: 120, duration: 0.3},
+      {y: 0}, 1.5)
+    .to("#asset3", {rotate: 360, duration: 4, repeat: -1, ease: "circ.inOut"}, 2) 
+    .to("#full", {backgroundSize: "100%", duration: 4, ease: "circ.inOut"}, 2) 
+    .to("#asset2", {rotate: 180, duration: 10, ease: "steps(4)", repeat: -1}, 1)
+    .fromTo("#full",
+      {visibility: "hidden", y: 0, rotateX: -180, duration: 0.5}, 
+      {visibility: "visible", y: 0, rotateX: 0, duration: 0.5}, 1)
+    .fromTo("#stack", 
+      {visibility: "hidden", xPercent: -80, duration: 1},
+      {visibility: "visible", xPercent: 0, duration: 1}, 1)
+    .to("#dash", {scaleX: 100, duration: 1, ease: "none"}, 3)
+
+
+</script>
+
+<div class="container min-h-screen p-7 flex flex-col justify-center">
+  <!-- <img src="/asset2.svg" id="asset2" class="w-28"/>   -->
+  <div class="font-bold tracking-wide leading-tight text-accent flex flex-col flex-wrap" id="hero-header">
+    <div class="flex font-headings" id="developer">
+      <div id="d" class="text-4xl md:text-7xl">D</div>
+      <div id="e" class="text-4xl md:text-7xl">é</div>
+      <div id="v" class="text-4xl md:text-7xl">v</div>
+      <div id="e2" class="text-4xl md:text-7xl">e</div>
+      <div id="l-container">
+        <!-- <div id="1" class="text-4xl md:text-7xl">1</div> -->
+        <div id="l" class="text-4xl md:text-7xl">l</div>
+      </div>
+      <div id="o-container">
+        <!-- <div id="0" class="text-4xl md:text-7xl">0</div> -->
+        <div id="o" class="text-4xl md:text-7xl">o</div>
+      </div>
+      <div id="p" class="text-4xl md:text-7xl">p</div>
+      <div id="p2" class="text-4xl md:text-7xl">p</div>
+      <div id="e2" class="text-4xl md:text-7xl">e</div>
+      <div id="u" class="text-4xl md:text-7xl">u</div>
+      <div id="r" class="text-4xl md:text-7xl">r</div>
+      <!-- <div id="dash" class="text-xl md:text-xl">-</div> -->
+      <!-- <div id="arrow" class="text-4xl md:text-7xl">→</div> -->
+    </div>
+    <div class="flex font-headings" id="fullstack">
+      <div id="full" class="text-5xl md:text-9xl">Full</div>
+      <img src="/asset3.svg" id="asset3" class="w-10 md:w-24"/>
+      <div id="stack" class="text-5xl md:text-9xl">Stack</div>
+    </div>
+    <!-- <div class="text-7xl font-heading font-bold text-accent" id="d">D</div> → développeur web -->
+  </div>
+</div>

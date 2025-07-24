@@ -1,0 +1,301 @@
+
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("/fonts/Atkinson-Hyperlegible-Regular-102a.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMonoVF.woff2") format("woff2");
+  font-display: swap;
+}
+
+:root {
+  --text-link: #A5b4bb;
+  --font-mono: "Anonymous Pro", monospace;
+  --font-sans: "Atkinson Hyperlegible", sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #181820;
+  color: #cac5ac;
+  padding: 0;
+  margin: 0;
+}
+
+main {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 1em;
+}
+
+#navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.normal {
+  color: #a89984;
+  text-decoration: none;
+}
+
+.active {
+  color: #fce8c3;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#site-title {
+  color: #e64878;
+  font-weight: 700;
+  font-size: 1.5em;
+  text-decoration: none;
+}
+
+a {
+  /* text-decoration: none; */
+  color: var(--text-link);
+}
+
+a:hover {
+  color: #e64878;
+}
+
+#navbar {
+  background-color: #1f1f28;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#navbar ul {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  list-style: none;
+}
+
+.language-switcher {
+  text-decoration: none;
+  color: var(--text-link);
+  border: 1px solid var(--text-link);
+  padding: 0.1em 0.2em;
+  border-radius: 5px;
+}
+
+.language-switcher:hover {
+  color: #e64878;
+  border-color: #e64878;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #e64878;
+  font-weight: 600;
+}
+
+p {
+  line-height: 1.7em;
+  margin: 1em 0;
+  font-size: 1.2em;
+}
+
+img {
+  width: 100%;
+}
+
+svg {
+  fill: #cac5ac;
+}
+
+ol {
+  list-style: decimal;
+  margin-left: 2em;
+  padding: 1em;
+  line-height: 1.7em;
+}
+
+blockquote {
+  font-size: 0.8em;
+  margin: 0;
+  /* padding: 1em; */
+  border-radius: 5px;
+}
+
+blockquote p {
+  margin: 0;
+  padding: 0.5em 0.8em;
+}
+
+/* Styling for the h4 inside blockquote */
+blockquote h4 {
+  margin: 0;
+  padding: 0.5em 0.8em;
+  font-size: 1.1em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  border-radius: 5px 5px 0 0;
+}
+
+blockquote h4 i {
+  margin-right: 8px;
+}
+
+/* Individual callout styles */
+.note,
+.info,
+.todo {
+  background-color: rgba(69, 133, 136, 0.4);
+  color: #48979b;
+}
+
+.warning,
+.question,
+.important {
+  background-color: rgba(214, 93, 14, 0.2);
+  color: #ec7500;
+}
+
+.tip,
+.summary {
+  background-color: rgba(104, 157, 106, 0.2);
+  color: #689d6a;
+}
+
+.bug,
+.error,
+.failure {
+  background-color: rgba(204, 36, 29, 0.2);
+  color: #cc241d;
+}
+
+.success {
+  background-color: rgba(152, 151, 26, 0.2);
+  color: #98971a;
+}
+
+.quote {
+  background-color: rgba(146, 131, 116, 0.3);
+  color: #928374;
+}
+
+strong {
+  font-weight: 600;
+}
+
+.content-listing {
+  list-style: none;
+  padding-left: 0;
+}
+
+.listing {
+  display: flex;
+  justify-content: space-between;
+  gap: 2em;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.listing-title {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.astro-code {
+  padding: 1em;
+  border-radius: 5px;
+}
+
+code {
+  font-family: var(--font-mono);
+  line-height: 1.5em;
+}
+
+#blog-page {
+  display: flex;
+  gap: 1em;
+}
+
+code:not(pre > code) {
+  font-family: var(--font-mono);
+  background-color: #3a3a3a;
+  color: #fbb829;
+  padding: 0.2em;
+  border-radius: 5px;
+}
+
+.blog {
+  width: 75%;
+}
+
+.blog-description {
+  /* font-size: 0.8em; */
+  color: #fbb829;
+}
+
+#blog-meta {
+  display: flex;
+  /* align-items: center; */
+  gap: 1em;
+  color: #9ebecf;
+}
+
+#blog-meta span {
+  display: flex;
+  /* align-items: center; */
+}
+
+#blog-meta svg {
+  margin-right: 5px;
+}
+
+#blog-meta ul {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc {
+  width: 25%;
+  position: sticky;
+  top: 70px;
+  height: 100vh;
+}
+
+.toc ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc li {
+  margin-bottom: 1em;
+  border-left: 1px solid #9ebecf;
+  padding-left: 1em;
+}
+
+.toc li a.active {
+  font-weight: bold;
+}
+
+@media screen and (max-width: 768px) {
+  .toc {
+    display: none;
+  }
+  .blog {
+    width: 100%;
+  }
+}
+
+.blog-meta {
+  margin-right: 1em;
+}

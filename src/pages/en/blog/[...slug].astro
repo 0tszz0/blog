@@ -1,0 +1,148 @@
+---
+import PageLayout from "../../../layouts/page.layout.astro";
+import "../../../styles/global.css";
+import { getCollection } from "astro:content";
+import calculateReadingTime from "../../../utils/blogReadingTimer";
+
+// Static Paths for individual Posts
+export async function getStaticPaths() {
+  const blogEntries = await getCollection("blog");
+  return blogEntries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+// Post Content
+const { entry } = Astro.props;
+console.log(entry.slug);
+const { Content } = await entry.render();
+const contentText = entry.body;
+
+// Post Meta Date Options
+const options: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "2-digit",
+};
+
+// Calculate Reading Time
+const readingTime = calculateReadingTime(contentText);
+---
+
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    // Add TOC
+    const toc = document.querySelector(".toc-titles");
+    const headings = document.querySelectorAll(
+      "h2, h3",
+    ) as NodeListOf<HTMLElement>;
+
+    headings.forEach((heading) => {
+      if (heading.id !== "toc-heading") {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = "#" + heading.id;
+        a.textContent = heading.textContent;
+        li.appendChild(a);
+        toc.appendChild(li);
+      }
+    });
+
+    // Add Callouts - note, info, todo, warning, tip, question, danger, bug, example, quote, success
+
+    const blockquotes = document.querySelectorAll("blockquote");
+
+    type CalloutType =
+      | "note"
+      | "info"
+      | "todo"
+      | "warning"
+      | "tip"
+      | "question"
+      | "danger"
+      | "bug"
+      | "example"
+      | "quote"
+      | "success";
+
+    interface CalloutInfo {
+      icon: string;
+      label: string;
+    }
+
+    const calloutTypes: Record<CalloutType, CalloutInfo> = {
+      note: { icon: "fa-solid fa-note-sticky", label: "Note" },
+      info: { icon: "fa-solid fa-info-circle", label: "Info" },
+      todo: { icon: "fa-solid fa-circle-check", label: "Todo" },
+      warning: { icon: "fa-solid fa-exclamation-triangle", label: "Warning" },
+      tip: { icon: "fa-solid fa-lightbulb", label: "Tip" },
+      question: { icon: "fa-solid fa-circle-question", label: "Question" },
+      danger: { icon: "fa-solid fa-bolt", label: "Danger" },
+      bug: { icon: "fa-solid fa-bug", label: "Bug" },
+      example: { icon: "fa-solid fa-list", label: "Example" },
+      quote: { icon: "fa-solid fa-quote-left", label: "Quote" },
+      success: { icon: "fa-solid fa-thumbs-up", label: "Success" },
+    };
+
+    blockquotes.forEach((blockquote) => {
+      const p = blockquote.querySelector("p");
+      const content = p.textContent || p.innerText;
+
+      // Extract the tag and content
+      let tag: CalloutType | "" = "";
+      let message = content;
+
+      for (const type of Object.keys(calloutTypes) as CalloutType[]) {
+        if (content.startsWith(`[!${type}]`)) {
+          tag = type;
+          message = content.slice(`[!${type}]`.length).trim();
+          break;
+        }
+      }
+
+      if (tag) {
+        // Create and insert the h4 with icon
+        const h4 = document.createElement("h4");
+        const icon = calloutTypes[tag].icon;
+        const label = calloutTypes[tag].label;
+        h4.innerHTML = `<i class="${icon}"></i> ${label}`;
+        blockquote.insertBefore(h4, p);
+
+        // Update the p element with the remaining content
+        p.textContent = message;
+        h4.classList.add(tag);
+        blockquote.classList.add(tag);
+      }
+    });
+  });
+</script>
+
+<PageLayout>
+  <!-- This page is a layout skeleton for individual blog posts -->
+  <div id="blog-page">
+    <div class="blog">
+      <h1>{entry.data.title}</h1>
+      <p class="blog-description">{entry.data.description}</p>
+      <hr />
+      <span class="blog-meta"
+        ><i class="fa-regular fa-calendar blog-meta-icon"></i>{
+          entry.data.pubDate.toLocaleDateString("en-GB", options)
+        }</span
+      >
+      <span class="blog-meta"
+        ><i class="fa-regular fa-clock blog-meta-icon"></i>{readingTime.minutes}
+        min read</span
+      >
+      <span class="blog-meta">{readingTime.words} words</span>
+      <!-- {entry.data.tags.map((tag) => {
+        return <a href={`/blog/tags/${tag}`} class="post-tag">#{tag}</a>;
+      })} -->
+      <hr />
+      <Content />
+    </div>
+    <div class="toc">
+      <h3 id="toc-heading">Contents</h3>
+      <ul class="toc-titles"></ul>
+    </div>
+  </div>
+</PageLayout>

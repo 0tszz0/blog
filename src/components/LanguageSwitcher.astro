@@ -1,0 +1,34 @@
+---
+const url = Astro.url;
+const { lang } = Astro.props;
+let switchToLang; // Switch to a new language
+lang === "en" ? (switchToLang = "fr") : (switchToLang = "en");
+const isBlog = url.pathname.startsWith("/blog/"); // Handle blog URLs
+let newUrl; // New Blog URL
+if (isBlog && lang === "en") {
+  newUrl = url.pathname.replace("/blog/", "/blog/en/"); // Change between languages staying on the same blog post
+}
+---
+
+{
+  isBlog ? (
+    <a
+      href={
+        switchToLang === "en"
+          ? url.pathname.replace("/blog/", "/blog/en/")
+          : url.pathname.replace("/blog/en/", "/blog/")
+      }
+      class="language-switcher"
+      aria-label={`Switch to ${switchToLang === 'en' ? 'French' : 'English'}`}
+    >
+      {switchToLang === "en" ? "En" : "Fr"}
+    </a>
+  ) : (
+    <a href={switchToLang === "en" ? "/en/" : "/"} 
+      class="language-switcher"
+      aria-label={`Switch to ${switchToLang === 'en' ? 'French' : 'English'}`}
+    >
+      {switchToLang === "en" ? "En" : "Fr"}
+    </a>
+  )
+}

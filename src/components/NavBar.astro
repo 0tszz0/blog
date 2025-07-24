@@ -1,0 +1,86 @@
+---
+import LanguageSwitcher from "../components/LanguageSwitcher.astro";
+const url = Astro.url;
+let lang;
+if (url.pathname.startsWith("/en/") || url.pathname.startsWith("/blog/en/")) {
+  lang = "en";
+} else {
+  lang = "fr";
+}
+---
+
+<div id="navbar">
+  <main id="navbar-content">
+    <div>
+      <a href={lang === "en" ? "/en/" : "/"} id="site-title">Nyukeit</a>
+    </div>
+    <ul>
+      {
+        lang === "en" ? (
+          <li>
+            <a
+              href="/en/blog"
+              class={url.pathname.startsWith("/blog") ? "active" : "normal"}
+            >
+              blog
+            </a>
+          </li>
+        ) : (
+          <li>
+            <a
+              href="/blog"
+              class={url.pathname.startsWith("/blog") ? "active" : "normal"}
+            >
+              blog
+            </a>
+          </li>
+        )
+      }
+      <!-- {
+        lang === "en" ? (
+          <li>
+            <a
+              href="/en/cv"
+              class={url.pathname.startsWith("/cv") ? "active" : "normal"}
+            >
+              cv
+            </a>
+          </li>
+        ) : (
+          <li>
+            <a
+              href="/cv"
+              class={url.pathname.startsWith("/cv") ? "active" : "normal"}
+            >
+              cv
+            </a>
+          </li>
+        )
+      } -->
+      {
+        lang === "en" ? (
+          <li>
+            <a
+              href="/en/homelab"
+              class={url.pathname.startsWith("/homelab") ? "active" : "normal"}
+            >
+              homelab
+            </a>
+          </li>
+        ) : (
+          <li>
+            <a
+              href="/homelab"
+              class={url.pathname.startsWith("/homelab") ? "active" : "normal"}
+            >
+              homelab
+            </a>
+          </li>
+        )
+      }
+      <li>
+        <LanguageSwitcher lang={lang} />
+      </li>
+    </ul>
+  </main>
+</div>

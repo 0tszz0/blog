@@ -1,0 +1,45 @@
+---
+const { enableYear, lang } = Astro.props;
+import { getCollection } from "astro:content";
+const blogposts = await getCollection("blog", ({ data }) => data.lang === lang);
+
+const sortedPosts = blogposts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+let currentYear: number = null;
+---
+
+<!-- This is the blog listings page -->
+<ul class="content-listing">
+  {
+    sortedPosts.map((post) => {
+      const postYear = post.data.pubDate.getFullYear();
+
+      let yearHeading = null;
+
+      if (postYear !== currentYear) {
+        // New year heading
+        yearHeading = <h3>{postYear}</h3>;
+        currentYear = postYear; // Update the current year
+      }
+
+      return (
+        <>
+          {enableYear && yearHeading}
+          <li class="listing">
+            <a href={`/blog/${post.slug}`} class="listing-title">
+              {post.data.title}
+            </a>
+            {enableYear === true ? (
+              <div style="width: 25%; text-align: right;">
+                {String(post.data.pubDate.getMonth() + 1).padStart(2, "0")}-
+                {String(post.data.pubDate.getFullYear()).slice(-2)}
+              </div>
+            ) : null}
+          </li>
+        </>
+      );
+    })
+  }
+</ul>
