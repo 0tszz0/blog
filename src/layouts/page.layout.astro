@@ -2,19 +2,19 @@
 import NavBar from '../components/NavBar.astro';
 import '../styles/global.css';
 const url = Astro.url;
-let lang;
-url.pathname.includes("en") ? (lang = "en") : (lang = "fr");
+// let lang;
+// url.pathname.includes("en") ? (lang = "en") : (lang = "fr");
 ---
 
-<html lang={lang}>
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="sitemap" href="/sitemap-index.xml" />
-		<meta name="description" content={lang === "en" ? "Nyukeit's blog and home on the internet" : "Le blog de Nyukeit et son site internet"} />
+		<meta name="description" content="All things Sysadmin & cybersecurity" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Développeur WordPress, Full-Stack & DevOps | Nyukeit</title>
+		<title>The Sysadmin & Cybersecurity Blog | 0tszz0</title>
 	</head>
   <body>
 		<NavBar />
