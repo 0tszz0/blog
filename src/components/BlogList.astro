@@ -1,7 +1,9 @@
 ---
 const { enableYear, lang } = Astro.props;
 import { getCollection } from "astro:content";
-const blogposts = await getCollection("blog", ({ data }) => data.lang === lang);
+// const blogposts = await getCollection("blog", ({ data }) => data.lang === lang);
+
+const blogposts = await getCollection("blog");
 
 const sortedPosts = blogposts.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),

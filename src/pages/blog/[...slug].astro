@@ -3,7 +3,7 @@ import PageLayout from "../../layouts/page.layout.astro";
 import "../../styles/global.css";
 import { getCollection } from "astro:content";
 import calculateReadingTime from "../../utils/blogReadingTimer";
-import LanguageSwitcher from "../../components/LanguageSwitcher.astro";
+// import LanguageSwitcher from "../../components/LanguageSwitcher.astro";
 
 // Static Paths for individual Posts
 export async function getStaticPaths() {
@@ -20,8 +20,8 @@ const { Content } = await entry.render();
 const contentText = entry.body;
 
 // Language Switcher
-let lang;
-entry.slug.startsWith("en/") ? (lang = "en") : (lang = "fr");
+// let lang;
+// entry.slug.startsWith("en/") ? (lang = "en") : (lang = "fr");
 
 // Post Meta Date Options
 const options: Intl.DateTimeFormatOptions = {
@@ -137,11 +137,11 @@ const readingTime = calculateReadingTime(contentText);
               {readingTime.minutes} mins
             </li>
             <li>
-              {readingTime.words} {lang === "en" ? "words" : "mots"}
+              {readingTime.words} words
             </li>
-            <li>
+            <!-- <li>
               <LanguageSwitcher lang={lang} />
-            </li>
+            </li> -->
           </ul>
           <!-- {entry.data.tags.map((tag) => {
             return <a href={`/blog/tags/${tag}`} class="post-tag">#{tag}</a>;

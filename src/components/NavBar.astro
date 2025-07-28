@@ -1,21 +1,37 @@
 ---
-import LanguageSwitcher from "../components/LanguageSwitcher.astro";
+// import LanguageSwitcher from "../components/LanguageSwitcher.astro";
 const url = Astro.url;
-let lang;
-if (url.pathname.startsWith("/en/") || url.pathname.startsWith("/blog/en/")) {
-  lang = "en";
-} else {
-  lang = "fr";
-}
+// let lang;
+// if (url.pathname.startsWith("/en/") || url.pathname.startsWith("/blog/en/")) {
+//   lang = "en";
+// } else {
+//   lang = "fr";
+// }
 ---
 
 <div id="navbar">
   <main id="navbar-content">
     <div>
-      <a href={lang === "en" ? "/en/" : "/"} id="site-title">Nyukeit</a>
+      <a href="/"} id="site-title">Nyukeit</a>
     </div>
     <ul>
-      {
+      <li>
+        <a
+          href="/blog"
+          class={url.pathname.startsWith("/blog") ? "active" : "normal"}
+        >
+          blog
+        </a>
+      </li>
+      <li>
+        <a
+          href="/homelab"
+          class={url.pathname.startsWith("/homelab") ? "active" : "normal"}
+        >
+          homelab
+        </a>
+      </li>
+      <!-- {
         lang === "en" ? (
           <li>
             <a
@@ -35,7 +51,7 @@ if (url.pathname.startsWith("/en/") || url.pathname.startsWith("/blog/en/")) {
             </a>
           </li>
         )
-      }
+      } -->
       <!-- {
         lang === "en" ? (
           <li>
@@ -57,7 +73,7 @@ if (url.pathname.startsWith("/en/") || url.pathname.startsWith("/blog/en/")) {
           </li>
         )
       } -->
-      {
+      <!-- {
         lang === "en" ? (
           <li>
             <a
@@ -77,10 +93,10 @@ if (url.pathname.startsWith("/en/") || url.pathname.startsWith("/blog/en/")) {
             </a>
           </li>
         )
-      }
-      <li>
+      } -->
+      <!-- <li>
         <LanguageSwitcher lang={lang} />
-      </li>
+      </li> -->
     </ul>
   </main>
 </div>
