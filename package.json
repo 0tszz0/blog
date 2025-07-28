@@ -20,6 +20,7 @@
     "typescript": "^5.4.3"
   },
   "devDependencies": {
+    "@igor.dvlpr/astro-post-excerpt": "^3.0.4",
     "daisyui": "^4.9.0",
     "wrangler": "^4.26.0"
   }

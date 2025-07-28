@@ -1,5 +1,6 @@
 ---
 const { enableYear, lang } = Astro.props;
+import PostExcerpt from '@igor.dvlpr/astro-post-excerpt';
 import { getCollection } from "astro:content";
 // const blogposts = await getCollection("blog", ({ data }) => data.lang === lang);
 
@@ -30,9 +31,15 @@ let currentYear: number = null;
         <>
           {enableYear && yearHeading}
           <li class="listing">
-            <a href={`/blog/${post.slug}`} class="listing-title">
-              {post.data.title}
-            </a>
+            <!-- <div class="post-thumbnail"></div> -->
+            <div class="post-details">
+              <a href={`/blog/${post.slug}`} class="listing-title">
+                {post.data.title}
+              </a>
+              <p>
+                <PostExcerpt post={post} words={30} addEllipsis={false} />
+              </p>
+            </div>
             {enableYear === true ? (
               <div style="width: 25%; text-align: right;">
                 {String(post.data.pubDate.getMonth() + 1).padStart(2, "0")}-
