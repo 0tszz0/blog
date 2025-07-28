@@ -1,27 +1,27 @@
 ---
-title: Construire un pipeline CI/CD Docker-Jenkins pour une application Python (Partie 1)
-description: Déployer une application Python à l'aide d'un pipeline CI/CD
+title: Building a Docker-Jenkins CI/CD Pipeline for a Python App (Part 1)
+description: Deploy a Python app using a CI/CD pipeline
 pubDate: 2022-12-13
 author: Nyukeit
 image: https://media.dev.to/cdn-cgi/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Ffq1afbyaoyfsakpjn8ya.png
 tags: ['cicd', 'devops', 'docker']
 draft: false
-lang: fr
+lang: en
 ---
 
 ## Introduction
 
-Dans cet article, nous allons voir comment déployer une application en utilisant un pipeline CI/CD impliquant git, GitHub, Jenkins, Docker et DockerHub. Le principe de base est que lorsqu'une mise à jour de code est poussée sur git, elle est mise à jour sur GitHub. Jenkins récupère alors cette mise à jour, construit l'image Docker à partir d'un fichier Dockerfile et d'une configuration Jenkinsfile, la pousse vers Docker Hub en tant que registre, puis la récupère et l'exécute en tant que conteneur pour déployer notre application.
+In this article, we will look at how we can deploy an app using a CI/CD pipeline involving git, GitHub, Jenkins, Docker and DockerHub. The basic premise is that when a code update is pushed to git, it will get updated on GitHub. Jenkins will then pull this update, build the Docker Image from a Dockerfile and Jenkinsfile configuration, push it to Docker Hub as a registry store, and then pull it and run it as a container to deploy our app.
 
-## Prérequis
+## Prerequisites
 
-1. Nous utiliserons une application Python pour ce tutoriel. L'exemple d'application sera inclus dans le repo GitHub.
-2. Un compte GitHub pour synchroniser notre repo local et se connecter à Jenkins.
-3. Compte Docker Hub. Si vous n'en avez pas encore, vous pouvez le créer sur hub.docker.com.
+1. We will use a Python app for this tutorial. The sample app will be included in the GitHub repo.
+2. GitHub account to sync our local repo and connect with Jenkins.
+3. Docker Hub account. If you do not already have one, you can create it at hub.docker.com
 
-## Installation/mise à jour de Java
+## Installing/Updating Java
 
-Nous allons d'abord vérifier si Java est installé et quelle est sa version.
+First we will check if Java is installed and what version is it.
 
 ```bash
 java -version
@@ -29,9 +29,9 @@ java -version
 
 ![Java Not Installed](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ol667ng36lew3964gy0a.png)
 
-Comme vous pouvez le voir, Java n'est pas installé.
+As you can see, it shows Java is not installed.
 
-Puisque Jenkins nécessite Java 11, nous allons l'installer en utilisant la documentation officielle de Jenkins.
+Since Jenkins will require Java 11, we will go ahead install it using the official documentation of Jenkins.
 
 ```bash
 sudo apt-get install -y openjdk-11-jre
@@ -39,7 +39,7 @@ sudo apt-get install -y openjdk-11-jre
 
 ![Java Install](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/i8sjki685pguv2ipp3j7.png)
 
-Une fois l'installation terminée, vous pouvez à nouveau vérifier la version de Java.
+Once the installation is complete, you can now check and verify the java version again.
 
 ```bash
 java -version
@@ -47,15 +47,15 @@ java -version
 
 ![Java Installed](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/cnubx1thgn716cevqo4q.png)
 
-Comme nous pouvons le voir, Java est maintenant installé avec succès avec la version 11.0.17.
+As we can see, Java is now successfully installed with version 11.0.17.
 
-Maintenant, installons Git.
+Now, let's install Git.
 
-## Installation de Git
+## Installing Git
 
-Git nous aidera à maintenir et à versionner notre code de manière efficace.
+Git will help us in maintaining and versioning our code in an efficient manner.
 
-Tout d'abord, vérifions si Git est déjà disponible dans notre système ou non.
+First let us check if Git is already available in our system or not.
 
 ```bash
 git --version
@@ -63,39 +63,39 @@ git --version
 
 ![Git Version](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/gh596kpct6ydslyaelh6.png)
 
-Comme nous pouvons le voir, Git était déjà installé sur le système avec la version 2.17.1. Si vous ne l'avez pas encore installé, vous pouvez le faire en utilisant cette commande :
+As we can see, Git was already installed on the system with the version 2.17.1. If you still do not have it installed, you can install it using this command:
 
 ```bash
 sudo apt-get install -y git
 ```
 
-## Configuration de Git (Repo local)
+## Configuring Git (Local Repo)
 
-Créons d'abord un dossier pour notre projet. Nous travaillerons dans ce dossier tout au long du tutoriel.
+Let's first create a folder for our project. We will be working inside this folder throughout the tutorial.
 
 ```bash
 mkdir pythonapp
 ```
-Nous allons initialiser notre dépôt Git local dans ce dossier.
+We will initialize our local Git repository inside this folder.
 
 ```bash
 cd pythonapp
 ```
-Mais avant d'initialiser notre dépôt local, nous devons apporter quelques modifications à la configuration par défaut de Git.
+But before we initialize our local repository, we need to make some changes to the default Git configuration.
 
 ```bash
 git config --global init.defaultBranch main
 ```
-Par défaut, Git utilise 'master' comme branche par défaut. Cependant, GitHub et la plupart des développeurs préfèrent utiliser « main » comme branche par défaut.
+By default, Git uses 'master' as the default branch. However, GitHub and most developers like to use 'main' as the default branch.
 
-Par ailleurs, nous allons également configurer notre nom et notre adresse électronique pour Git.
+Further, we will also configure our name and email ID for Git.
 
 ```bash
 git config --global user.name "your_name"
 git config --global user.email "your@email.com"
 ```
 
-Pour vérifier les modifications apportées à la configuration de Git, vous pouvez utiliser cette commande :
+To verify your modifications to the Git configuration, you can use this command:
 
 ```bash
 git config --list
@@ -103,7 +103,7 @@ git config --list
 
 ![Git Configurations](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/lwvzmdgr3v96u5pp1sed.png)
 
-Il est maintenant temps d'initialiser notre dépôt local.
+Now it's time to initialize our local repository.
 
 ```bash
 git init
@@ -111,59 +111,59 @@ git init
 
 ![Initialising Git](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5wggvxbbg868khybe9im.png)
 
-Cela créera un dépôt vide dans le dossier. Vous pouvez également créer un dépôt sur GitHub puis le cloner sur votre système local.
+This will create an empty repository in the folder. You can also alternatively create a repository on GitHub first and then clone it to your local system.
 
-## Configuration de GitHub (Dépôt distant)
+## Setting up GitHub (Remote Repo)
 
-Notre dépôt Git local n'est pas configuré et initialisé. Nous allons maintenant créer un dépôt distant sur GitHub pour le synchroniser avec le dépôt local.
+Our local Git repository is not setup and initialized. We will now create a remote repo on GitHub to sync with local.
 
-Connectez-vous à votre compte GitHub et cliquez sur votre image de profil. Cliquez sur 'Your Repositories'.
+Login to your GitHub account and click on your Profile picture. Click on 'Your Repositories'.
 
-Sur la page qui s'ouvre, cliquez sur le bouton vert 'New'.
+On the page that opens, click on the green 'New' button.
 
-Nommons notre dépôt 'pythonapp' pour qu'il soit identique au nom de notre dossier. Ce n'est pas nécessaire mais cela simplifiera les choses.
+Let's name our repo 'pythonapp' to keep it same as our folder name. This is not necessary but it will keep things simpler.
 
 
 ![Creating GitHub Repository](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bi13m9c1fn8dczjjwpl6.png)
 
-Gardez le dépôt comme 'Public' et cliquez sur 'Créer un dépôt'
+Keep the repository as 'Public' and click on 'Create Repository'
 
-## Connexion à GitHub
+## Connecting to GitHub
 
-Pour ce tutoriel, nous utiliserons SSH pour connecter le dépôt local à notre dépôt distant. Veuillez noter que GitHub n'autorise plus les combinaisons nom d'utilisateur/mot de passe pour les connexions. Si vous souhaitez utiliser https à la place, vous pouvez consulter le tutoriel [this](https://www.edgoad.com/2021/02/using-personal-access-tokens-with-git-and-github.html) pour vous connecter en utilisant des jetons d'accès personnels.
+For this tutorial, we will use SSH to connect the local repo to our remote repo. Please note that GitHub has stopped allowing username/password combinations for connections. If you wish to use https instead, you can check out [this](https://www.edgoad.com/2021/02/using-personal-access-tokens-with-git-and-github.html) tutorial to connect using Personal Access Tokens.
 
-Tout d'abord, nous allons créer une clé SSH dans notre système Ubuntu.
+First we will create an SSH key in our Ubuntu system.
 
 ```bash
 ssh-keygen
 ```
-Appuyez trois fois sur la touche « Entrée » sans rien saisir.
+Press 'enter' three times without typing anything.
 
 ![Generating an SSH Keypair](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tv5zw2cg1m6axq7f5og0.png)
 
-Cela créera une clé SSH dans votre système. Nous utiliserons cette clé dans notre compte GitHub. Pour accéder à la clé, utilisez la commande suivante
+This will create an SSH key in your system. We will use this key in our GitHub account. To access the key, use this command
 
 ```bash
 cat ~/.ssh/id_rsa.pub
 ```
-Copiez la clé entière.
+Copy the entire key.
 
-Sur GitHub, allez dans votre dépôt et cliquez sur « Settings ».
+On GitHub, go to your repository and click on 'Settings'.
 
-Sur la gauche, dans la section 'Security', cliquez sur 'Deploy Keys'.
+On the left, in the 'Security' section, click on 'Deploy Keys'.
 
 ![GitHub SSH Key Addition](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/o7lgeprfn2afirm6ecwf.png)
 
-Donnez à la clé le nom que vous souhaitez. Collez la clé que vous avez copiée depuis le terminal dans la case « Clé ». Veillez à cocher la case « Autoriser l'accès en écriture ».
+Name the key to whatever you wish. Paste the key that you copied from the terminal inside the 'Key' box. Be sure to tick the 'Allow Write Access' box.
 
-Cliquez maintenant sur 'Add Key'. Nous avons maintenant accès au push de notre repo distant en utilisant SSH.
+Now click on 'Add Key'. We now have access to push to our remote repo using SSH.
 
-Nous allons maintenant ajouter le remote qui nous permettra d'effectuer des opérations sur le repo distant.
+Now we will add the remote that will allow us to perform operations to the remote repo.
 
 ```bash
 git remote add origin git@github.com:nyukeit/pythonapp.git
 ```
-Pour vérifier votre télécommande
+To verify your remote
 
 ```bash
 git remote
@@ -171,20 +171,20 @@ git remote
 
 ![Verifying our Git Remotes](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bqyunotlgo9schttiwzp.png)
 
-Pour vérifier et connecter notre configuration, nous ferons
+To verify and connect our configuration, we will do
 
 ```bash
 ssh -T git@github.com
 ```
-Lorsque l'on vous le demande, tapez 'yes'. Vous devriez voir apparaître un message disant « Vous vous êtes authentifié avec succès, mais GitHub ne fournit pas d'accès shell ».
+When prompted, type 'yes'. You should see a message that says 'You have successfullly authenticated, but GitHub does not provide shell access.'
 
 ![GitHub SSH Connection Verifiction](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/7gsweicvz9t0u33gjeq3.png)
 
 ## Python App
 
-Créons une application Python qui affichera Hello World ! dans le navigateur lorsqu'elle sera exécutée.
+Let's create Python app that will display Hello World! in the browser when executed.
 
-Dans votre terminal, assurez-vous d'être dans le dossier du projet. Créez un dossier nommé 'src' et créez un fichier nommé 'helloworld.py' à l'intérieur de ce dossier comme ceci :
+Inside your terminal, make sure you are in the project folder. Create a folder named 'src' and create a file name 'helloworld.py' inside this folder like this:
 
 ```bash
 mkdir src
@@ -194,7 +194,7 @@ cd src
 ```bash
 sudo nano helloworld.py
 ```
-Maintenant, écrivons un script Python ! Dans l'éditeur nano, tapez ceci :
+Now let's write a Python script! Inside the nano editor, type this:
 
 ```python
 from flask import Flask, request
@@ -212,6 +212,6 @@ api.add_resource(Greeting, '/') # Route_1
 if __name__ == '__main__':
     app.run('0.0.0.0','3333')
 ```
-Appuyez sur **ctrl + x + y** pour sauvegarder le fichier.
+Press **ctrl + x + y** to save the file.
 
-Rendez-vous à la [Partie 2](/blog/docker-jenkins-cicd-2) où nous verrons l'installation et la configuration de Jenkins, Docker et la création des scripts pour terminer notre pipeline.
+Head over to [Part 2](/blog/docker-jenkins-cicd) where we will go through the installation & configuration of Jenkins, Docker and creating the scripts to finish our pipeline.

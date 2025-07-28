@@ -1,19 +1,19 @@
 ---
-title: Provisionnement d'une instance EC2 avec Terraform et keypair
-description: Lancer une instance EC2 à partir de votre CLI
+title: Provisioning an EC2 instance using Terraform & keypair
+description: Launch an EC2 instance from your CLI
 pubDate: 2023-02-15
 author: Nyukeit
 image: https://media.dev.to/cdn-cgi/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F0puyz7dg4be5onisb1x3.png
 tags: ['aws', 'devops']
 draft: false
-lang: fr
+lang: en
 ---
 
-Ce tutoriel décrit de manière très basique les étapes à suivre pour utiliser Terraform afin de démarrer une instance d'AWS EC2 et de s'y connecter en SSH. Veuillez noter que ce tutoriel s'adresse aux débutants absolus.
+This tutorial outlines in a very basic way, the steps needed to be taken to use Terraform to fire up an instance of AWS EC2 and then SSH into it. Please note that this is for absolute beginners.
 
-## Installer Terraform
+## Install Terraform
 
-Pour commencer, nous devons installer gnupg et software-properties-common, s'ils ne sont pas déjà présents. Cette étape suit les instructions mentionnées dans la documentation officielle de Terraform.
+To begin with, we first need to install gnupg and software-properties-common, if not already present. This step follows the instructions mentioned in the official Terraform documentation.
 
 ```bash
 sudo apt-get update
@@ -22,7 +22,7 @@ sudo apt-get update
 sudo apt-get install -y gnupg software-properties-common
 ```
 
-Après les avoir installés, nous devons ajouter la clé GPG de HashiCorp au système Ubuntu.
+After installing these, we need to add the HashiCorp GPG Key to the Ubuntu system.
 
 ```bash
 wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -30,7 +30,7 @@ gpg --dearmor | \
 sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 ```
 
-Maintenant, ajoutons le dépôt HashiCorp à Ubuntu. Ce dépôt nous permettra de trouver le logiciel Terraform sur Internet.
+Now, let's go ahead and add the HashiCorp repository to Ubuntu. This repository will allow us to find the Terraform software on the internet.
 
 ```bash
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
@@ -38,7 +38,7 @@ https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
 sudo tee /etc/apt/sources.list.d/hashicorp.list
 ```
 
-Enfin, il est temps d'installer Terraform lui-même.
+And finally, it's time to install Terraform itself.
 
 ```bash
 sudo apt-get update
@@ -47,7 +47,7 @@ sudo apt-get update
 sudo apt-get install terraform
 ```
 
-Une fois l'installation terminée, vérifions si elle s'est déroulée correctement à l'aide de cette commande :
+After completion, let's verify if the installation was successful using this command:
 
 ```bash
 terraform --version
@@ -55,11 +55,11 @@ terraform --version
 
 ![Verify Terraform installation](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ekvd344omshla90i5lkn.png)
 
-Maintenant que Terraform est installé, il est temps d'installer AWSCLI, l'utilitaire pour configurer notre AWS avec des identifiants.
+Now that Terraform is installed, it's time to install AWSCLI, the utility to configure our AWS with credentials.
 
-## Installer AWSCLI
+## Install AWSCLI
 
-Bien qu'il y ait plusieurs façons d'installer AWSCLI, nous utiliserons la méthode prescrite dans la documentation officielle d'Amazon.
+Although there are a few ways to install AWSCLI, we will use the method prescribed in the official documentation by Amazon.
 
 ```bash
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -67,7 +67,7 @@ unzip awscliv2.zip
 sudo ./aws/install
 ```
 
-Une fois de plus, nous vérifions l'installation réussie d'AWSLI en vérifiant sa version en tapant la commande suivante :
+Once again, we verify the successfull installation of AWSLI by checking its version by typing in the following command:
 
 ```bash
 aws --version
@@ -75,11 +75,11 @@ aws --version
 
 ![Verify AWS CLI Installation](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/jbzaz4ww4agt95vkm1ev.png)
 
-## Références AWS
+## AWS Credentials
 
-Créez un compte AWS avec un niveau gratuit si vous n'en avez pas encore. Allez ensuite dans votre profil et cherchez Credentials. Nous utiliserons ces informations d'identification pour nous connecter à AWS à partir du CLI.
+Create an AWS account with a free tier if you already don't have one. Then head to your Profile and look for Credentials. We will use these credentials to connect to AWS from the CLI.
 
-Maintenant, dans le terminal, nous tapons la commande suivante
+Now in the terminal, we type the following command
 
 ```bash
 aws configure
@@ -87,7 +87,7 @@ aws configure
 
 ![Configuring AWS with Credentials](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bcddyezxldphtkue6lae.png)
 
-AWS nous propose de coller ou de taper les éléments suivants un par un. Appuyez sur la touche « Entrée » après avoir collé chaque ligne. Notez que [none] signifie qu'il n'y a pas encore de données configurées pour cette touche.
+AWS presents us with options to paste/type the following one by one. Press enter after pasting in each line. Note that [none] means there is no data configured for that key yet.
 
 ```bash
 Access Key [none]: <paste access key here>
@@ -99,11 +99,11 @@ Region [none]: us-east-1
 Output format [none]: <leave this blank>
 ```
 
-Nous avons maintenant configuré notre AWSCLI pour accéder au compte AWS, mais ce n'est pas suffisant pour lancer une instance EC2. Pour cela, nous avons besoin d'une paire de clés.
+Now we have our AWSCLI configured to access the AWS account, however, this is not enough to launch an EC2 instance. For that, we need a keypair.
 
-Sidenote : Cet article utilise le compte root dans AWS et ne prend en compte aucun point de vue de sécurité. Il est généralement conseillé de créer un compte utilisateur IAM et d'utiliser des limites de permission.
+Sidenote: This article makes use of the root account in AWS and does not consider any security viewpoint. Creating an IAM user account and using permission boundaries is generally suggested.
 
-Une fois encore, nous confirmons que tout est en place en procédant à une vérification. Voir, c'est croire.
+Again, we confirm everything is in place by verifying. Seeing is believing.
 
 ```bash
 cd /.aws
@@ -116,40 +116,40 @@ cat credentials
 
 ## EC2 Keypair
 
-Dans le tableau de bord AWS, allez à EC2 et dans la navigation de gauche, allez à Keypair. Cliquez sur **Create**.
+In AWS dashboard, go to EC2 and on the left navigation, go to Keypair. Click on **Create**.
 
-Donnez un nom approprié au fichier de la paire de clés, sélectionnez RSA et PEM et cliquez sur Save. Cela téléchargera le fichier PEM sur le système.
+Give a suitable name to the keypair file and select RSA and PEM and click on Save. This will download the PEM file to the system.
 
-Dans le terminal, créez un dossier pour votre projet.
+In terminal, create a folder for your project.
 
 ```bash
 mkdir projectfolder
 ```
 
-Si vous ne pouvez pas accéder au fichier PEM téléchargé pour une raison quelconque (par exemple, si vous êtes dans une machine virtuelle à l'intérieur d'une machine hôte), vous pouvez le créer dans le terminal.
+If you cannot access your downloaded PEM file for any reason (eg. if you are in a VM inside a host machine), you can create it inside the terminal.
 
 ```bash
 sudo nano keyfile.pem
 ```
 
-Copiez-collez le contenu du fichier de paires de clés téléchargé dans la fenêtre nano du terminal. Appuyez sur **ctrl + x + y** pour enregistrer le fichier.
+Copy paste the contents of the downloaded keypair file inside the nano window in the terminal. Press **ctrl + x + y** to save the file.
 
-Nous allons maintenant changer les permissions de ce fichier clé, sans quoi EC2 rejettera notre connexion.
+Now we will change the permissions of this key file, without which EC2 will reject our connection.
 
 ```bash
 sudo chmod 400 keyfile.pem
 ```
-Nous utiliserons ce fichier de paires de clés pour nous connecter en mode ssh à l'instance EC2 nouvellement créée.
+We will use this keypair file to ssh into the newly created EC2 Instance.
 
-## Création de scripts Terraform
+## Creating Terraform Scripts
 
-Maintenant que les prérequis sont en place, créons un plan Terraform et appliquons-le pour créer notre instance.
+Now that we have the prerequisites in place, let's create a Terraform plan and apply it to create our instance.
 
 ```bash
 cd projectfolder
 ```
 
-Une fois dans le dossier, créez le fichier Terraform creds qui contiendra les mêmes informations d'identification que celles utilisées pour AWSCLI.
+Once inside the folder, create the Terraform creds file which will contain the same credentials that we used for AWSCLI.
 
 ```bash
 sudo nano creds.tf
@@ -163,7 +163,7 @@ provider "aws" {
 }
 ```
 
-Il est maintenant temps de créer le script Terraform principal qui exécutera les commandes pour lancer notre instance EC2.
+Now it's time to create the main Terraform script that will actually execute the commands to launch our EC2 instance.
 
 ```bash
 sudo nano main.tf
@@ -177,7 +177,7 @@ resource "aws_instance" "myproject" {
 }
 ```
 
-Le plan Terraform est maintenant prêt et nous devons le lancer.
+We now have the Terraform plan ready and we need to initiate it.
 
 ```bash
 terraform init
@@ -185,7 +185,7 @@ terraform init
 
 ![Initializing Terraform](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ztxc5objk6r2dqd8ccxo.png)
 
-Une fois la configuration initialisée, nous devons l'appliquer pour que Terraform crée notre instance EC2.
+Once the configuration is initialized, we need to apply it for Terraform to create our EC2 instance.
 
 ```bash
 terraform apply
@@ -193,43 +193,43 @@ terraform apply
 
 ![Creating the EC2 instance](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/u8mwjhpxcy1b57619vcs.png)
 
-Lorsque vous y êtes invité, tapez **yes**
+When prompted, type **yes**
 
-Terraform va maintenant commencer à créer l'instance EC2. Cela peut prendre un certain temps en fonction de l'image.
+Terraform will now begin to create the EC2 instance. This may take some time depending on the image.
 
-Pour vérifier la création de l'instance, allez sur le tableau de bord EC2 et voyez l'instance nouvellement créée en cours d'exécution.
+To verify the creation of the instance, go to the EC2 dashboard and see the newly created instance in the running state.
 
 ![Verify EC2 instance running](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/kn2qzyg62qa3oisc426b.png)
 
-## Connexion à l'instance EC2 à l'aide de SSH
+## Connecting to EC2 Instance using SSH
 
-La raison pour laquelle j'ai initié mon instance à l'aide d'un fichier de paires de clés était de pouvoir m'y connecter en SSH après sa création. Et nous allons voir comment cela devient très facile maintenant.
+The reason why I initiated my instance using a keypair file was to be able to SSH into it after creation. And we will see how this became very easy now.
 
-La première étape est d'aller sur le tableau de bord EC2 et de cliquer sur **Security Groups**.
+The first step is to go to the EC2 dashboard and click on **Security Groups**.
 
-Sélectionnez le groupe de sécurité et cliquez sur l'onglet **Inbound Rules**. Cliquez sur **Editer les règles de réception**.
+There, select the security group and click on **Inbound Rules** tab. Click on **Edit Inbound Rules**.
 
-Une règle par défaut a déjà été ajoutée.
+There was a default rule already added.
 
-Cliquez sur **Ajouter une règle** et sélectionnez le protocole **SSH** et la source **Custom**. Cliquez sur le champ de recherche à côté de Custom et sélectionnez **0.0.0.0/0** et enregistrez la règle.
+Click on **Add Rule** and select the protocol as **SSH** and source as **Custom**. Click on the search box next to Custom and select **0.0.0.0/0** and save the rule.
 
-L'instance EC2 est maintenant prête à accepter les connexions SSH entrantes.
+The EC2 instance was now ready to accept incoming SSH connections.
 
-Avant de continuer, nous avons besoin de l'adresse DNS IPv4 publique de l'instance. Sélectionnez votre instance dans **Instances** dans le menu latéral.
+Before moving ahead, we need the public IPv4 DNS address of the instance. Select your instance from **Instances** in the sidebar menu.
 
-Maintenant, pour se connecter à l'instance EC2, nous tapons ce qui suit
+Now to login to the EC2 instance, we type the following
 
 ```bash
 sudo ssh -i "keyfile.pem" ubuntu@ip4-public-dns
 ```
 
-> [!tip] Amazon AWS a des noms d'utilisateur par défaut pour les AMIs en fonction du type d'image qui peut être trouvé sur [ici](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connection-prereqs.html)
+> [!tip] Amazon AWS has default usernames for AMIs based on the type of image which can be found on [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connection-prereqs.html)
 
-Lorsque vous y êtes invité, tapez **yes**.
+When prompted, type **yes**.
 
 ![Succesfull SSH into the EC2 instance](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/e7sqykm0zm2p0vz9fwgm.png)
 
-Nous avons ainsi réussi à nous connecter à notre nouvelle instance EC2 à l'aide de SSH.
+With this, we have successfully logged in to our new EC2 instance using SSH.
 
 ## Resources
 

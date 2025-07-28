@@ -1,42 +1,44 @@
 ---
-title: Déployer Wordpress sur AWS EC2 avec Terraform et Ansible
-description: Déployer une pile WordPress sur AWS en une seule commande
+title: Deploying Wordpress on AWS EC2 using Terraform and Ansible
+description: Deploy a WordPress stack on AWS with one command
 pubDate: 2023-02-07
 author: Nyukeit
 image: https://media.dev.to/cdn-cgi/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fb3gkpi58acrgpbal4723.png
 tags: ['wordpress', 'devops']
 draft: false
-lang: fr
+lang: en
 ---
 
-> [!warning] Cet article a été écrit en février 2023. Des choses peuvent avoir changé depuis, comme les dépendances, les versions, etc.
+> [!warning] This post was written in Feb, 2023. Things may have changed since then, like dependencies, versions, etc.
 
-Le code complet est disponible à cette adresse [GitHub Repo](https://github.com/codenamenuke/wordpress-ansible-setup).
+Full code is available at this [GitHub Repo](https://github.com/codenamenuke/wordpress-ansible-setup).
 
-Si vous souhaitez n'utiliser que le rôle Ansible, il se trouve à [Ansible Galaxy](https://galaxy.ansible.com/codenamenuke/wordpress).
+If you wish to only use the Ansible role, it’s at [Ansible Galaxy](https://galaxy.ansible.com/codenamenuke/wordpress).
 
 ## Introduction
-Dans ce projet, nous allons provisionner une instance EC2 en utilisant Terraform et utiliser Ansible pour déployer une pile WordPress complète et fonctionnelle qui peut ensuite être configurée et installée en utilisant l'interface web. Comme toujours avec nos projets, nous utiliserons un système basé sur Ubuntu.
+In this project, we are going to provision an EC2 instance using Terraform and use Ansible to deploy a complete and working WordPress stack which can then be configured and installed using the web interface. As always with our projects, we will be using an Ubuntu based system.
 
-## Pré-requis
-Puisque nous utilisons Terraform, Ansible et AWS, nous aurons besoin des éléments suivants avant de continuer.
+## Pre-requisites
+Since we are using Terraform, Ansible and AWS, we will be needing the following things in place before continuing.
 
-1. Installer la dernière version de Terraform en utilisant le guide ici.
-2. Installer et configurer Ansible en utilisant le guide ici
-3. Si vous n'avez pas de compte AWS, créez-en un à partir d'AWS.
+1. Install the latest version of Terraform using the guide here.
+2. Install and configure Ansible using the guide here
+3. If you do not have an AWS account, create one now from AWS
 
-Tout d'abord, nous allons créer le matériel Ansible et nous assurer que notre playbook peut déployer un serveur WordPress. Une fois cela fait, nous pouvons automatiser ce déploiement sur une instance EC2 avec Terraform.
+First, we will create the Ansible stuff and make sure our playbook can deploy a WordPress server. Once this is done, we can automate this deployment on an EC2 instance with Terraform.
 
-## Création du Playbook Ansible & Rôles
-Nous allons créer manuellement les rôles Ansible à utiliser dans ce tutoriel. Vous pouvez trouver de nombreux rôles WordPress prêts à l'emploi sur Ansible-Galaxy mais la plupart d'entre eux ont tendance à devenir trop compliqués très rapidement.
+## Creating the Ansible Playbook & Roles
+We will be manually creating the Ansible Roles to use in this tutorial. You can find many ready-to-use WordPress roles on Ansible-Galaxy but most of them tend to get too complicated very fast.
 
-Dans cette méthode, nous allons créer les rôles Ansible suivants pour gérer les différents aspects du processus d'installation de WordPress et avant cela, l'installation des dépendances.
+In this method, we will create the following Ansible Roles to manage various aspects of the WordPress installation process and before that, installing the dependencies.
 
-### Quels rôles allons-nous créer ?
-**WordPress** → Rôle principal qui exécutera les tâches importantes.
-**MySQL** → Pour configurer notre utilisateur MySQL et notre base de données.
-**PHP** → Pour installer les dépendances nécessaires à WP.
-**Server** → Pour s'assurer que notre serveur est configuré avec les bonnes dépendances.
+### Which roles will we create?
+**WordPress** → Main Role which will run the important tasks.
+**MySQL** → To setup our MySQL user and DB.
+**PHP** → To install dependencies required by WP.
+**Server** → To make sure our server is setup using the correct dependencies.
+
+You can follow along this tutorial by manually creating the following files and folders, or you can clone my Git repository.
 
 ```bash
 git clone https://github.com/nyukeit/wordpress-ansible-setup.git

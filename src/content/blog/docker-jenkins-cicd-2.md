@@ -1,27 +1,27 @@
 ---
-title: Construire un pipeline CI/CD Docker-Jenkins pour une application Python (Partie 2)
-description: Déployer une application Python à l'aide d'un pipeline CI/CD
+title: Building a Docker-Jenkins CI/CD Pipeline for a Python App (Part 2)
+description: Deploy a Python app using a CI/CD pipeline
 pubDate: 2022-12-13
 author: Nyukeit
 image: https://media.dev.to/cdn-cgi/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Ffq1afbyaoyfsakpjn8ya.png
 tags: ['docker', 'devops']
 draft: false
-lang: fr
+lang: en
 ---
 
-> [!note] Ceci est la suite du tutoriel pour construire un pipeline Docker Jenkins pour déployer une application Python simple en utilisant Git et GitHub. La première partie du tutoriel se trouve [ici](/blog/docker-jenkins-cicd-1).
+> [!note] This is a continuation of the tutorial for building a Docker Jenkins pipeline to deploy a simple Python app using Git and GitHub. The first part of the tutorial can be found [here](/blog/docker-jenkins-cicd-1).
 
-## Installation de Jenkins
+## Installing Jenkins
 
-Nous avons maintenant les bases pour déployer notre application. Installons les logiciels restants pour compléter notre pipeline.
+We now have the basics ready for deploying our app. Let's install the remaining software to complete our pipeline.
 
-Nous commençons par importer la clé GPG qui vérifiera l'intégrité du paquet.
+We begin by importing the GPG key which will verify the integrity of the package.
 
 ```bash
 curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
   /usr/share/keyrings/jenkins-keyring.asc > /dev/null
 ```
-Ensuite, nous ajoutons le dépôt Jenkins softwarey à la liste des sources et fournissons la clé d'authentification.
+Next, we add the Jenkins softwarey repository to the sources list and provide the authentication key.
 
 ```bash
 echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
@@ -35,16 +35,16 @@ sudo apt update
 
 ![Jenkins Key and Source](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qzjzig2xt2wyggha61nc.png)
 
-Maintenant, nous installons Jenkins
+Now, we install Jenkins
 
 ```bash
 sudo apt-get install -y jenkins
 ```
-Attendez que le processus d'installation soit terminé et que vous repreniez le contrôle du terminal.
+Wait till the entire installation process is over and you get back control of the terminal.
 
 ![Installing Jenkins](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hr00dwb0dc30gqrjazdo.png)
 
-Pour vérifier que Jenkins a été installé correctement, nous allons vérifier si le service Jenkins est en cours d'exécution.
+To verify if Jenkins was installed correctly, we will check if the Jenkins service is running.
 
 ```bash
 sudo systemctl status jenkins.service
@@ -52,22 +52,22 @@ sudo systemctl status jenkins.service
 
 ![Verifying Jenkins Installation](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/8agoj9tenlsyyhputiwp.png)
 
-Appuyez sur **Q** pour reprendre le contrôle.
+Press **Q** to regain control.
 
-## Configuration de Jenkins
+## Jenkins Configuration
 
-Nous avons vérifié que le service Jenkins est maintenant en cours d'exécution. Cela signifie que nous pouvons aller de l'avant et le configurer à l'aide de notre navigateur.
+We have verified that the Jenkins service is now running. This means we can go ahead and configure it using our browser.
 
-Ouvrez votre navigateur et tapez ceci dans la barre d'adresse :
+Open your browser and type this in the address bar:
 
 ```bash
 localhost:8080
 ```
-La page Débloquer Jenkins devrait s'afficher.
+You should see the Unlock Jenkins page.
 
 ![Unlocking Jenkins for First Use](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/xr31blr90a8rg1lmlpjk.png)
 
-Jenkins a généré un mot de passe par défaut lors de son installation. Pour localiser ce mot de passe, nous allons utiliser la commande :
+Jenkins generated a default password when we installed it. To locate this password we will use the command:
 
 ```bash
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
@@ -75,40 +75,40 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 ![Jenkins first unlock password](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/30rie9q95b5pealtszgr.png)
 
-Copiez ce mot de passe et collez-le dans la case de la page d'accueil.
+Copy this password and paste it into the box on the welcome page.
 
-Sur la page suivante, sélectionnez « Installer les plugins suggérés ».
+On the next page, select 'Install Suggested plugins'
 
 ![Jenkins Suggested Plugins](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/776iko4eo3x5hpl4xx2q.png)
 
-Vous devriez voir Jenkins installer les plugins.
+You should see Jenkins installing the plugins.
 
 ![Jenkins Plugins Installation](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tyzdrwm37shogfuyaug5.png)
 
-Une fois l'installation terminée, cliquez sur Continuer.
+Once the installation has completed, click on Continue.
 
-Sur la page Create Admin User (Créer un utilisateur administrateur), cliquez sur Skip and Continue as Admin (Ignorer et continuer en tant qu'administrateur). Vous pouvez également créer un utilisateur Admin distinct, mais veillez à l'ajouter au groupe Docker.
+On the Create Admin User page, click 'Skip and Continue as Admin'. You can alternatively create a separate Admin user, but be sure to add it to Docker group.
 
-Cliquez sur « Save and Continue
+Click on 'Save and Continue'
 
-Sur la page **Instance Configuration**, Jenkins indiquera l'URL à laquelle il est possible d'accéder. Laissez-la et cliquez sur « Save and Finish ».
+On the **Instance Configuration** page, Jenkins will show the URL where it can be accessed. Leave it and click 'Save and Finish'
 
-Cliquez sur « Start Using Jenkins ». Vous arriverez sur une page de bienvenue comme celle-ci :
+Click on 'Start Using Jenkins'. You will land on a welcome page like this:
 
 ![Jenkins Landing Page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/00lzd66vt8mb5adq9bfx.png)
 
-Nous avons maintenant configuré Jenkins avec succès. Revenons au terminal pour installer Docker.
+We have now successfully setup Jenkins. Let's go back to the terminal to install Docker.
 
-## Installation de Docker
+## Installing Docker
 
-Tout d'abord, nous devons désinstaller tous les éléments Docker précédents, s'il y en a.
+First we need to uninstall any previous Docker stuff, if any.
 
 ```bash
 sudo apt-get remove docker docker-engine docker.io containerd runc
 ```
-Il est probable que rien ne sera supprimé puisque nous travaillons avec une nouvelle installation d'Ubuntu.
+Most likely, nothing will be removed since we are working with a fresh install of Ubuntu.
 
-Nous utiliserons la ligne de commande pour installer Docker.
+We will use the command line to install Docker.
 
 ```bash
 sudo apt-get install \
@@ -120,7 +120,7 @@ sudo apt-get install \
 
 ![Docker Pre-requisites](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/doj5urwkt6c5izfigv47.png)
 
-Ensuite, nous allons ajouter la clé GPG de Docker, comme nous l'avons fait avec Jenkins.
+Next, we will add Docker's GPG key, just like we did with Jenkins.
 
 ```bash
 sudo mkdir -p /etc/apt/keyrings
@@ -128,14 +128,14 @@ sudo mkdir -p /etc/apt/keyrings
 ```bash
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 ```
-Nous allons maintenant configurer le repository.
+Now, we will setup the repository
 
 ```bash
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
-Ensuite, nous allons installer le Docker Engine.
+Next we will install the Docker Engine.
 
 ```bash
 sudo apt-get update
@@ -147,7 +147,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
 ![Docker Installation](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yjiuh0d4n2ulnh2tnea8.png)
 
-Vérifiez maintenant l'installation en tapant
+Now verify the installation by typing
 
 ```bash
 docker version
@@ -155,24 +155,24 @@ docker version
 
 ![Docker version](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/mqrqygtvd69gq7vsmmwk.png)
 
-Notez que vous obtiendrez une erreur de permission refusée lors de la connexion au daemon socket de Docker. C'est parce qu'il nécessite un utilisateur root. Cela signifie que vous devrez préfixer sudo à chaque fois que vous voudrez exécuter des commandes Docker. Ce n'est pas idéal. Nous pouvons y remédier en créant un groupe Docker.
+Notice that you will get an error for permission denied while connecting to Docker daemon socket. This is because it requires a root user. This means you would need to prefix sudo every time you want to run Docker commands. This is not ideal. We can fix this by making a docker group.
 
 ```bash
 sudo groupadd docker
 ```
-Le groupe `docker` peut déjà exister. Ajoutons maintenant l'utilisateur à ce groupe.
+The docker group may already exist. Now let's add the user to this group.
 
 ```bash
 sudo usermod -aG docker $USER
 ```
-Appliquez les modifications aux groupes Unix en tapant ce qui suit :
+Apply changes to Unix groups by typing the following:
 
 ```bash
 newgrp docker
 ```
-> [!warning] Si vous suivez ce tutoriel sur une VM, il se peut que vous deviez redémarrer votre instance pour que les changements prennent effet.
+> [!warning] If you are following this tutorial on a VM, you may need to restart your instance for changes to take effect.
 
-Vérifions que nous pouvons maintenant nous connecter au moteur Docker.
+Let's verify that we can now connect to the Docker Engine.
 
 ```bash
 docker version
@@ -180,18 +180,18 @@ docker version
 
 ![Docker Engine Version](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/8wgyv4q0upawpblc7awv.png)
 
-Comme nous pouvons le voir, Docker est maintenant pleinement fonctionnel avec une connexion au moteur Docker.
+As we can see, Docker is now fully functional with a connection to the Docker Engine.
 
-Nous allons maintenant créer le fichier Docker qui construira l'image Docker.
+We will now create the Dockerfile that will build the Docker image.
 
-## Création du fichier Docker
+## Creating the Dockerfile
 
-Dans votre terminal, dans votre dossier, créez le Dockerfile en utilisant l'éditeur nano.
+Inside your terminal, within your folder, create the Dockerfile using the nano editor.
 
 ```bash
 sudo nano Dockerfile
 ```
-Tapez ce texte dans l'éditeur :
+Type this text inside the editor:
 
 ```bash
 FROM python:3.8
@@ -204,9 +204,9 @@ ENTRYPOINT ["python"]
 CMD ["./src/helloworld.py"]
 ```
 
-## Construire l'image Docker
+## Building the Docker Image
 
-A partir du fichier Docker, nous allons maintenant construire une image Docker.
+From the Dockerfile, we will now build a Docker image.
 
 ```bash
 docker build -t helloworldpython .
@@ -214,28 +214,28 @@ docker build -t helloworldpython .
 
 ![Building the Docker Image](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4f7520scdh9tmypvnscg.png)
 
-Créons maintenant un conteneur de test et lançons-le dans un navigateur pour vérifier que notre application s'affiche correctement.
+Now let's create a test container and run it a browser to check if our app is displaying correctly.
 
 ```bash
 docker run -p 3333:3333 helloworldpython
 ```
 
-Ouvrez votre navigateur et allez sur ``localhost:3333`` pour voir notre application python en action.
+Open your browser and go to ```localhost:3333``` to see our python app in action.
 
 ![Python Webapp Running](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/z7kys0xb3jft1nt15wa9.png)
 
-Voyons maintenant comment automatiser cette impression à chaque fois que nous apportons une modification à notre code python.
+Now let's see how we can automate this printing every time we make a change to our python code.
 
-## Création du fichier Jenkins
+## Creating the Jenkinsfile
 
-Nous allons créer un fichier Jenkins qui élaborera un processus étape par étape de construction de l'image à partir du fichier Docker, en la poussant vers le registre, en la récupérant du registre et en l'exécutant en tant que conteneur.
+We will create a Jenkinsfile which will elaborate a step-by-step process of building the image from the Dockerfile, pushing it to the registry, pulling it back from the registry and running it as a container.
 
-Chaque modification apportée au dépôt GitHub déclenchera cette chaîne d'événements.
+Every change pushed to the GitHub repository will trigger this chain of events.
 
 ```bash
 sudo nano Jenkinsfile
 ```
-Dans l'éditeur nano, nous utiliserons le code suivant comme fichier Jenkins.
+In the nano editor, we will use the following code as our Jenkinsfile.
 
 ```bash
 node {
@@ -267,21 +267,21 @@ node {
 }
 ```
 
-## Explication du fichier Jenkins
+## Explaining the Jenkinsfile
 
-Notre pipeline Jenkins est divisé en 5 étapes comme vous pouvez le voir dans le code.
+Our Jenkins pipeline is divided in 5 stages as you can see from the code.
 
-- Etape 1 - Clone notre repo Github
-- Etape 2 - Construit notre image Docker à partir du fichier Docker
-- Etape 3 - Pousse l'image vers Docker Hub
-- Étape 4 - Déploie l'image en tant que conteneur en l'extrayant de Docker Hub
-- Étape 5 - Supprime l'ancienne image pour mettre fin à l'empilement d'images.
+- Stage 1 - Clones our Github repo
+- Stage 2 - Builds our Docker image from the Docker File
+- Stage 3 - Pushes the image to Docker Hub
+- Stage 4 - Deploys the image as a container by pulling it from Docker Hub
+- Stage 5 - Removes the old image to stop image pile up.
 
-Maintenant que notre fichier Jenkins est prêt, poussons tout notre code source sur GitHub.
+Now that our Jenkinsfile is ready, let's push all of our source code to GitHub.
 
-## Pousser des fichiers sur GitHub
+## Pushing files to GitHub
 
-Tout d'abord, vérifions le statut de notre repo local.
+First, let's check the status of our local repo.
 
 ```bash
 git status
@@ -289,14 +289,14 @@ git status
 
 ![Git not tracking files](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/alrbtwkbapk4xxq6f0kh.png)
 
-Comme nous pouvons le voir, il n'y a pas encore de commits et il y a des fichiers et des dossiers non suivis. Demandons à Git de les suivre afin que nous puissions les pousser vers notre dépôt distant.
+As we can see, there are no commits yet and there are untracked files and folders. Let's tell Git to track them so we can push them to our remote repo.
 
 ```bash
 git add *
 ```
-Cela ajoutera tous les fichiers présents dans le scope git.
+This will add all the files present in the git scope.
 
-Git suit maintenant nos fichiers et ils sont prêts à être livrés. La fonction commit pousse les fichiers vers la zone de stockage où ils seront prêts à être poussés.
+Git is now tracking our files and they are ready to be commit. The commit function pushes the files to the staging area where they will be ready to be pushed.
 
 ```bash
 git commit -m "First push of the python app"
@@ -304,120 +304,120 @@ git commit -m "First push of the python app"
 
 ![First commit to Git](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/46p7ylx28irecq2q7xir.png)
 
-Il est maintenant temps de pousser nos fichiers.
+Now, it's time to push our files.
 
 ```bash
 git push -u origin main
 ```
-Accédons à notre repo sur GitHub pour vérifier que notre push s'est bien déroulé.
+Let's go to our repo on GitHub to verify that our push was successful.
 
 ![Verifying the first push to GitHub](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/o9vym4llb8395wcd0rwo.png)
 
-## Création des identifiants Jenkins
+## Creating Jenkins Credentials
 
-Dans le tableau de bord Jenkins, allez dans **Manage Jenkins**.
+In the Jenkins dashboard, go to **Manage Jenkins**.
 
 ![Manage Jenkins](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ihv661bppiuz4dpusm3l.png)
 
-Dans la section Sécurité, cliquez sur **Gérer les informations d'identification**.
+In the Security section, go to **Manage Credentials**.
 
 ![Manage Credentials in Jenkins](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/q71u42owjlyt6nii777l.png)
 
-Dans la section des informations d'identification, cliquez sur **Système**. Sur la page qui s'ouvre, cliquez sur **Global Credentials Unrestricted** (informations d'identification globales non restreintes)
+In the credentials section, click on **System**. On the page that opens, click on **Global Credentials Unrestricted**
 
 ![System Credentials](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/27pszc6dp7lk2dz3kv9z.png)
 
 ![Global Credentials](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/aqz53lq8ud4kxwuiz7fl.png)
 
-Cliquez maintenant sur **Add Credentials**.
+Now click on **Add Credentials**.
 
-Gardez 'Kind' comme 'Username and Password' (nom d'utilisateur et mot de passe)
+Keep 'Kind' as 'Username and Password'
 
-Dans 'username' tapez votre nom d'utilisateur Docker Hub.
+In 'username' type your Docker Hub username.
 
-Dans 'password' tapez votre mot de passe Docker Hub.
+In 'password' type your Docker Hub password.
 
-> Si vous avez activé 2FA dans votre compte Docker Hub, vous devez créer un jeton d'accès et l'utiliser comme mot de passe ici.
+> [!info] If you have enabled 2FA in your Docker Hub account, you need to create an access token and use it as a password here.
 
-Dans 'ID', tapez 'dockerHub'
+In 'ID', type 'dockerHub'
 
-Enfin, cliquez sur **Create**
+Finally, click on **Create**
 
 ![Docker credentials in Jenkins](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/zto67qzg1lvvvka5z7jt.png)
 
-## Création d'un job Jenkins
+## Creating a Jenkins Job
 
-Pour fermer notre pipeline, nous allons créer un job Jenkins qui sera déclenché lorsqu'il y aura des changements sur notre repo GitHub.
+To close our pipeline, we will create a Jenkins job which will be triggered when there are changes to our GitHub repo.
 
-> Dans Jenkins, si ce n'est pas déjà fait, installez les plugins Docker et Docker Pipeline. Redémarrez votre instance Jenkins après l'installation.
+> [!tip] In Jenkins, if not already installed, install the plugins Docker and Docker Pipeline. Restart your Jenkins instance after installation.
 
-Cliquez sur **New Item** dans votre tableau de bord Jenkins. Entrez le nom de votre choix. Sélectionnez **Pipeline** et cliquez sur OK.
+Click on **New Item** in your Jenkins dashboard. Enter any name you like. Select **Pipeline** and click okay.
 
 ![Jenkins New Project Pipeline](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g5jhye8pbuqx1pr70tox.png)
 
-Dans la page de configuration, saisissez la description que vous souhaitez.
+In the configuration page, type in any description that you want.
 
 ![Configuring a Jenkins Project](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/s896yrwsd1yatnm0lr9k.png)
 
-Dans 'Build Triggers', sélectionnez **Poll SCM**.
+In 'Build Triggers' select **Poll SCM**.
 
 ![Jenkins Poll SCM & Schedule](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/fg45fgw73ojm7a7qtb64.png)
 
-Dans 'Schedule', tapez ```* * * * * *``` (avec des espaces entre les deux). Ceci va interroger notre repo GitHub toutes les minutes pour vérifier s'il y a des changements. C'est souvent trop rapide pour un projet, mais nous ne faisons que tester notre code.
+In 'Schedule', type ```* * * * *``` (with spaces in between. This will poll our GitHub repo every minute to check if there any changes. This is mostly too quick for any project, but we are just testing our code.
 
-Dans la section 'Pipeline', dans 'definition' sélectionnez **Pipeline Script from SCM**. Ceci recherchera le fichier Jenkins que nous avons téléchargé dans notre repo sur GitHub et l'appliquera.
+In the 'Pipeline' section, in 'definition' select **Pipeline Script from SCM**. This will look for the Jenkinsfile that we uploaded to our repo in GitHub and apply it.
 
-Ensuite, dans SCM, dans la section 'Repositories', copiez et collez votre repo GitHub **HTTPS URL**.
+Next, in SCM in the Repositories section, copy and paste your GitHub repo **HTTPS URL**.
 
 ![Jenkins Poll SCM Config](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/kj0q43aaro1jf6y0iy1i.png)
 
-Dans 'Branches à construire', par défaut, il y aura master. Changez-la en main, puisque notre branche s'appelle main.
+In 'Branches to Build', by default, it will have master. Change it to main, since our branch is called main.
 
-Assurez-vous que le 'Script Path' contient déjà 'Jenkinsfile'. Si ce n'est pas le cas, vous pouvez le taper.
+Make sure the 'Script Path' has 'Jenkinsfile' already populated. If not, you can type it out.
 
 ![Jenkins SCM Branch](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/uqmwyh3jfx3yju90eceb.png)
 
-Cliquez sur **Save**.
+Click on **Save**.
 
-Notre job Jenkins est maintenant créé. Il est temps de voir l'ensemble du pipeline en action.
+Now our Jenkins job is created. It is time to see the whole pipeline in action.
 
-Cliquez sur 'Build Now'. Cela va déclencher toutes les étapes et si toutes les configurations sont correctes, notre conteneur devrait fonctionner avec l'application python et notre image personnalisée téléchargée sur Docker Hub. Vérifions cela.
+Click on 'Build Now'. This will trigger all the steps and if we have all the configurations correct, it should have our container running with the python app and our custom image uploaded on Docker Hub. Let's verify this.
 
 ![Jenkins Console Output](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/cnideutqzxks3iac50r5.png)
 
 ![Verifying our image on Docker Hub](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hqbnxryw458mgdbrug7n.png)
 
-Comme nous pouvons le voir, notre image personnalisée est maintenant disponible dans notre compte Docker Hub.
+As we can see, our custom built image is now available in our Docker Hub account.
 
-Vérifions maintenant que le conteneur fonctionne.
+Now let's verify if the container is running.
 
 ```bash
 docker ps
 ```
 
-## Transmettre les changements à l'application Python
+## Committing changes to Python App
 
-Pour voir le flux automatisé complet en action, modifions un peu l'application Python et retournons dans notre navigateur pour voir les changements se refléter automatiquement.
+To see the full automated flow in action, let's change the python app a bit and go back to our browser to see the changes being reflected automatically.
 
-Nous avons changé le texte de sortie de *Bonjour le monde!* à *Bonjour le monde ! J'apprends le DevOps!*
+We have changed the output text from *Hello World!* to *Hello World! I am learning DevOps!*
 
-Sauvegardez le fichier et envoyez-le sur GitHub.
+Save the file and push the file to GitHub.
 
-Comme nous pouvons le voir, cette action a déclenché la création d'un job automatique sur Jenkins, qui a abouti à la Build No. 2 de notre application.
+As we can see, this action triggered an automatic job creation on Jenkins, which resulted in Build No. 2 of our app.
 
 ![Jenkins build auto-trigger](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2ln44h4oaxbffamxd500.png)
 
-Nous pouvons maintenant voir que notre application a 2 builds. Dans le premier build, nous pouvons voir 'no changes' parce que nous avons déclenché manuellement le premier build après avoir créé notre dépôt. Toutes les modifications ultérieures donneront lieu à une nouvelle compilation.
+We can now see that our app has 2 builds. In the first build, we can see 'no changes' because we manually triggered the first build after creating our repository. All subsequent commits will result in a new build.
 
-Nous pouvons voir que la Build No 2 mentionne qu'il y a eu 1 commit.
+We can see that Build No 2 mentions there was 1 commit.
 
 ![Jenkins 2nd Build Successfull](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bc3ysr6md1oe6czjxyuy.png)
 
-En ce qui concerne notre application web, le message affiché a maintenant changé.
+As for our webapp, the message displayed has now changed.
 
 ![Python App updated](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/nlfhhwhq9tedy03lxhzc.png)
 
-C'est ainsi que nous pouvons créer une automatisation Docker-Jenkins.
+This is how we can create a Docker-Jenkins automation.
 
 
 ## Resources

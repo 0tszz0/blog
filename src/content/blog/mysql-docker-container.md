@@ -1,57 +1,57 @@
 ---
-title: Utiliser MySQL dans un conteneur Docker pour vos projets
-description: Une configuration de base pour démarrer avec MySQL dans un conteneur Docker
+title: Using MySQL in a Docker Container for your Projects
+description: A basic setup to get up and running with MySQL in a Docker Container
 pubDate: 2024-08-06
 author: Nyukeit
 tags: ["docker", "mysql", "database"]
 draft: false
-lang: fr
+lang: en
 ---
 
-Je suis un fervent partisan de la propreté de mon système hôte. Et les conteneurs Docker sont la solution parfaite pour cela. Disons que vous travaillez sur une application React avec un backend Node / Express et un serveur MySQL pour vos besoins de base de données. Typiquement, vous installez `mysql` dans votre système hôte, créez une base de données, créez un utilisateur avec un mot de passe et accordez à l'utilisateur des privilèges pour travailler avec cette base de données.
+I am a firm believer of keeping my host system clean. And Docker containers are the perfect solution to this. Let's say you are working on a React app with a Node / Express backend and a MySQL server for your DB needs. Typically, you would install `mysql` in your host system, create a database, create a user with a password and grant the user privileges to work with that database.
 
-Au lieu de perdre du temps à configurer cela à chaque fois pour chaque projet, j'utilise simplement une image Docker pour créer mon serveur de base de données MySQL, pour qu'il soit prêt, opérationnel en quelques secondes, avec toute la configuration nécessaire dont j'aurais besoin.
+Instead of wasting time in configuring this every single time for every single project, I just use a Docker image to create my MySQL database server, to be ready, up and running in a few seconds, with all the necessary setup I would ever need.
 
-Croyez-moi, une fois que vous aurez compris votre flux de travail en utilisant cette méthode, vous ne reviendrez jamais aux anciennes méthodes. Voici donc comment je procède de manière très simple et basique.
+Trust me, once you figure out your workflow using this route, you will never go back to the old ways. So, here is how I go about it and a very simple, basic manner.
 
-Si vous avez une certaine expérience de Docker et que vous souhaitez sauter ce tutoriel et vous lancer directement dans une version TLDR, voici [Gist](https://gist.github.com/nyukeit/8ecdfbd8c3f05b015b1e8248dcc39a9d) would be much faster.
+If you have some experience with Docker and wish to skip this tutorial and jump in with a TLDR version directly, this [Gist](https://gist.github.com/nyukeit/8ecdfbd8c3f05b015b1e8248dcc39a9d) would be much faster.
 
-## De quoi avons-nous besoin ?
-Pour utiliser Docker, nous avons besoin de Docker, duh ! Je n'entrerai pas dans les détails de l'installation de Docker ici. Si vous n'êtes pas à l'aise avec un CLI ou si vous êtes sous Windows/MacOS, optez pour Docker Desktop, il fera tout le travail pour vous dans les coulisses.
+## What will we need?
+To use Docker, we need Docker, duh! I will not go into the detail of installing Docker here. If you aren't comfortable with a CLI or your are on Windows/MacOS, go for Docker Desktop, it will do all the heavy lifting for you behind the scenes.
 
-Les utilisateurs de Linux peuvent installer Docker Engine avec le plugin Docker Compose ou Docker Desktop si vous ne vous sentez pas à l'aise.
+Linux users could install Docker Engine with the Docker Compose plugin or Docker Desktop too if you aren't feeling it.
 
-Vous n'avez généralement pas besoin d'un compte sur [Docker Hub](https://hub.docker.com) pour télécharger des images publiques comme l'image officielle de MySQL que nous allons utiliser.
+You typically don't need an account on [Docker Hub](https://hub.docker.com) to download public images like`MySQL` official image that we will be using.
 
-## Très bien, et maintenant ?
-Il y a deux façons de procéder.
+## Alright, what now?
+There are two ways of doing this.
 
-### Utiliser Docker Run (non recommandé)
-Pour pouvoir lancer directement le conteneur en utilisant la commande `docker run`, vous devrez d'abord avoir téléchargé l'image MySQL sur votre système. Pour télécharger l'image sur votre système, utilisez simplement cette commande :
+### Using Docker Run (Not Recommended)
+To be able to directly run the container using the `docker run` command, you will have to have downloaded the MySQL image on your system first. To pull the image to your system, simply use this command:
 
 ```bash
 docker pull mysql
 ```
 
-> [!info] Si vous n'avez pas besoin d'une version particulière de MySQL, cette commande téléchargera la dernière version (celle avec le dernier tag). Vous pouvez explorer plus de tags et de versions à partir du Docker Hub si vous en avez besoin.
+> [!info] If you do not need a particular version of MySQL, then this command will download the latest one (the one with the latest tag). You could explore more tags and versions from the Docker Hub if you need.
 
-Une fois que Docker a terminé le téléchargement, vous pouvez voir votre image téléchargée comme ceci :
+Once Docker is done downloading, you can see your downloaded image like this:
 
 ```bash
 docker image ls
 ```
 
-Maintenant, pour lancer le conteneur, vous devez ajouter beaucoup de drapeaux avec la commande `docker run`. Vous pouvez visiter ce [lien](https://github.com/docker-library/docs/tree/master/mysql) pour vérifier toutes les options dont vous disposez. Et souvenez-vous de tous les drapeaux que vous devez ajouter, car l'absence de certains drapeaux peut provoquer des erreurs ou lancer un conteneur incapable.
+Now, to run the container, you have to add a lot of flags with the `docker run` command. You can visit this [link](https://github.com/docker-library/docs/tree/master/mysql) to check all the options you have. And remember all the flags you need to add since missing some might throw errors or start an incapable container.
 
-De plus, à chaque fois que vous voudrez lancer votre conteneur, vous devrez soit retrouver cette longue commande dans l'historique du terminal, soit la retaper. Cela n'a aucun intérêt.
+Besides, every time you wish to run your container, you will either have to fish out this long command from the terminal history, or type it out again. There is no point of that.
 
-C'est la raison pour laquelle je ne recommande PAS cette approche. Il existe une meilleure solution.
+This is the reason why I DO NOT recommend this approach. There is a better way.
 ### Docker Compose
-Nous allons créer un fichier Docker Compose qui indiquera à Docker ce dont nous avons besoin lors du lancement du conteneur. Une fois que tout est mis en place dans le fichier, le lancement du conteneur devient un jeu d'enfant.
+We will create a Docker Compose file which will tell Docker what we need while launching the container. Once everything is laid out in the file, launching the container becomes a piece of cake.
 
-> Vous pouvez créer votre fichier compose avec n'importe quel nom. Si vous utilisez votre propre nom ou si vous stockez votre fichier de composition dans d'autres dossiers, vous devrez fournir le drapeau `-f` pour que cela fonctionne. Alternativement, si vous exécutez la commande depuis le même dossier que votre fichier, alors vous pouvez nommer le fichier `docker-compose.yaml`.
+> [!tip] You can create your compose file with any name. If you use your own name or store your compose file in other folders, you will have to provide a flag `-f` to make it work. Alternatively, if you are running the command from the same folder as your file, then you can name the file `docker-compose.yaml`.
 
-Un fichier Docker Compose est un fichier YAML. Le nôtre ressemblera à ceci :
+A Docker Compose file is a YAML file. Ours will look like this:
 
 ```yaml
 # This Docker Compose YAML deploys a MySQL database
@@ -79,15 +79,15 @@ services:
       - ./volumes/db-mnt:/var/lib/mysql
 ```
 
-Ce fichier est également disponible sur le Gist mentionné au début.
+This file is also available on the Gist mentioned in the beginning.
 
-**Important à savoir**
-1. Port-Mapping : Le premier port est le port de l'hôte (votre système) qui est mappé au second port (le port à l'intérieur du conteneur docker). Cela signifie que, dans l'exemple ci-dessus, vous pouvez accéder à la base de données à `localhost:3308`. A moins que vous ne soyez très sûr de ce que vous faites, gardez le second port à `3306`. C'est le port par défaut de MySQL.
-2. Montage du volume Bind : Nous montons un volume local sur le conteneur pour conserver les données à l'intérieur de la base de données. Cela facilite les sauvegardes et les déplacements en cas de besoin. Vous pouvez également laisser Docker gérer son propre volume et créer des sauvegardes périodiques sur votre système hôte.
-#### Le fichier d'environnement
-Pour fournir les informations nécessaires à Docker lors de la création du conteneur, nous allons créer un fichier `.env`, tout comme nous le faisons dans nos applications React ou Backend.
+**Important To Know**
+1. Port-Mapping: The first port is the host port (your system) which is mapped to the second port (the port inside the docker container). This means, in the above example, you can access the database at `localhost:3308`. Unless, you are very sure of what you are doing, keep the second port as `3306`. This is the default port for MySQL.
+2. Volume Bind Mount: We are mounting a local volume to the container to persist the data inside the database. This makes it easy to backup and move around if needed. You could also let Docker manage it's own volume and create periodic backups on your host system.
+#### The Environment File
+To supply the necessary credentials to Docker while creating the container, we will create a `.env` file, just like how we do in our React or Backend apps.
 
-Vous pouvez créer ce fichier dans le même dossier que votre fichier de composition, ou vous pouvez le créer n'importe où, mais vous devrez fournir le chemin lors de l'appel à `docker-compose`.
+You can either create this file in the same folder where your compose file is, or you can create it anywhere you like but will need to supply the path while calling `docker-compose`.
 
 ```sh
 # Content of the Environment Variables file
@@ -97,12 +97,12 @@ MYSQL_USER=dbusername
 MYSQL_PASSWORD=dbuserpassword
 ```
 
-Une fois que tout cela est en place, il suffit d'utiliser une petite commande pour que notre base de données soit prête à l'emploi.
+Once we have all this in place, we can simply use one little command and our database will be up and ready waiting for us.
 
 ```bash
 docker-compose up -d
 ```
 
-Vous êtes maintenant prêt à établir une connexion à la base de données en utilisant votre moyen préféré.
+You are now ready to make a connection to the database using your preferred means.
 
-Et puisque nous avons configuré nos conteneurs pour fonctionner à partir d'un fichier de composition, vous pouvez le sauvegarder en toute sécurité dans un système git dans votre repo. Assurez-vous simplement que vous `.gitignore` le fichier `.env`.
+And since we have configured our containers to run from a compose file, you could safely back it up in a git system in your repo. Just make sure you `.gitignore` the `.env` file.
